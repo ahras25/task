@@ -231,7 +231,35 @@
       .toggle{font-size:11px}
     }
     a{color:#cfe0ff}
-  </style>
+  
+    /* === Mobile modal/keyboard fix (v4) === */
+    .backdrop{
+      /* mobil klavye gelince üst kısmı gömmesin */
+      align-items: center;
+    }
+    .modal{
+      max-height: calc(100dvh - 28px);
+      display: flex;
+      flex-direction: column;
+    }
+    .modal header{ flex: 0 0 auto; }
+    .modal .footer{ flex: 0 0 auto; }
+    .modal .content{
+      flex: 1 1 auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
+    }
+    @media (max-width:520px){
+      .backdrop{ align-items: stretch; }
+      .modal{
+        margin-top: auto;
+        margin-bottom: 0;
+        max-height: calc(100dvh - 12px);
+      }
+    }
+
+</style>
 </head>
 <body>
 
@@ -531,6 +559,17 @@ const mTags = document.getElementById("mTags");
 const modalTitle = document.getElementById("modalTitle");
 let editingId = null;
 
+
+/** Mobile focus helper (v4) */
+[mText, mNote, mTags, mDeadline, mEvery].forEach(el=>{
+  try{
+    el.addEventListener("focus", ()=>{
+      el.scrollIntoView({ block:"center", behavior:"smooth" });
+    });
+  } catch {}
+});
+
+
 const bulkInfo = document.getElementById("bulkInfo");
 const bulkCat = document.getElementById("bulkCat");
 const bulkDeadline = document.getElementById("bulkDeadline");
@@ -801,6 +840,7 @@ function openEdit(id){
 }
 
 function openModal(t){
+  document.body.style.overflow = "hidden";
   editingId = t.id || null;
   modalTitle.textContent = editingId ? "Görevi Düzenle" : "Yeni Görev";
   mText.value = t.text || "";
@@ -816,9 +856,13 @@ function openModal(t){
   mTags.value = (t.tags || []).join(", ");
   backdrop.classList.add("show");
   backdrop.setAttribute("aria-hidden","false");
-  setTimeout(()=>mText.focus(), 50);
+  setTimeout(()=>{
+    mText.focus({ preventScroll: true });
+    mText.scrollIntoView({ block:"center", behavior:"smooth" });
+  }, 80);
 }
 function closeModal(){
+  document.body.style.overflow = "";
   backdrop.classList.remove("show");
   backdrop.setAttribute("aria-hidden","true");
   editingId = null;
