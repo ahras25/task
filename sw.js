@@ -1,4 +1,4 @@
-const CACHE = "brp-tasks-v3";
+const CACHE = "brp-tasks-v4";
 const ASSETS = [
   "./",
   "./index.html",
